@@ -1,0 +1,24 @@
+swagger: '2.0'
+info:
+  title: hello-api
+  version: 1.0.0
+schemes:
+  - https
+paths:
+  /hello:
+    get:
+      x-google-backend:
+        address: http://hello-service.default.svc.cluster.local
+      security:
+        - jwt: []
+      responses:
+        '200':
+          description: OK
+securityDefinitions:
+  jwt:
+    type: oauth2
+    flow: implicit
+    authorizationUrl: ""
+    x-google-issuer: "https://securetoken.google.com/PROJECT_ID"
+    x-google-jwks_uri: "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"
+    x-google-audiences: "PROJECT_ID"

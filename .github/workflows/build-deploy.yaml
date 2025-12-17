@@ -1,0 +1,49 @@
+name: Build and Deploy to GKE
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  PROJECT_ID: your-gcp-project-id
+  GAR_LOCATION: us-central1
+  REPOSITORY: microservices
+  IMAGE: hello-gke
+  CLUSTER: hello-cluster
+  ZONE: us-central1-a
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Auth to GCP
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Setup gcloud
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Configure Docker
+      run: gcloud auth configure-docker $GAR_LOCATION-docker.pkg.dev
+
+    - name: Build Image
+      run: |
+        docker build -t $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:${{ github.sha }} -f docker/Dockerfile .
+
+    - name: Push Image
+      run: |
+        docker push $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:${{ github.sha }}
+
+    - name: Get GKE Credentials
+      run: |
+        gcloud container clusters get-credentials $CLUSTER --zone $ZONE
+
+    - name: Deploy to GKE
+      run: |
+        sed -i "s|IMAGE_TAG|${{ github.sha }}|g" k8s/deployment.yaml
+        kubectl apply -f k8s/
