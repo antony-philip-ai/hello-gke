@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 env:
-  PROJECT_ID: gke-project-100
+  PROJECTID: gke-project-100
   GAR_LOCATION: us-central1
   REPOSITORY: microservices
   IMAGE: hello-gke
@@ -40,15 +40,15 @@ jobs:
 
     - name: Build Image
       run: |
-        docker build -t $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:${{ github.sha }} -f docker/Dockerfile .
+        docker build -t $GAR_LOCATION-docker.pkg.dev/$PROJECTID/$REPOSITORY/$IMAGE:${{ github.sha }} -f docker/Dockerfile .
 
     - name: Push Image
       run: |
-        docker push $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:${{ github.sha }}
+        docker push $GAR_LOCATION-docker.pkg.dev/$PROJECTID/$REPOSITORY/$IMAGE:${{ github.sha }}
 
     - name: Get GKE Credentials
       run: |
-        gcloud container clusters get-credentials $CLUSTER --region=$GAR_LOCATION --project=$PROJECT_ID
+        gcloud container clusters get-credentials $CLUSTER --region=$GAR_LOCATION --project=$PROJECTID
 
     - name: Deploy to GKE
       run: |
