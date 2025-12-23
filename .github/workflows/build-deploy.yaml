@@ -48,7 +48,7 @@ jobs:
 
     - name: Get GKE Credentials
       run: |
-        gcloud container clusters get-credentials $CLUSTER --zone $ZONE
+        gcloud container clusters get-credentials $CLUSTER --region=$GAR_LOCATION --project=$PROJECT_ID
 
     - name: Deploy to GKE
       run: |
