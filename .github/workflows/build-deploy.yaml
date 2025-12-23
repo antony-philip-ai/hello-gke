@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 env:
-  PROJECT_ID: project-gke-test-481311
+  PROJECT_ID: gke-project-100
   GAR_LOCATION: us-central1
   REPOSITORY: microservices
   IMAGE: hello-gke
