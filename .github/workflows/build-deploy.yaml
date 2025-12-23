@@ -53,4 +53,6 @@ jobs:
     - name: Deploy to GKE
       run: |
         sed -i "s|IMAGE_TAG|${{ github.sha }}|g" k8s/deployment.yaml
+        sed -i "s|PROJECT_ID|$PROJECTID|g" k8s/deployment.yaml
+        sed -i "s|us-central1-docker.pkg.dev|${GAR_LOCATION}-docker.pkg.dev|g" k8s/deployment.yaml
         kubectl apply -f k8s/
