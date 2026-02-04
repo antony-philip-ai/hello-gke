@@ -1,63 +1,80 @@
-flowchart TD
-    %% Define Nodes
-    subgraph "Developer Workstation"
+flowchart LR
+    %% ========================
+    %% Developer Zone
+    %% ========================
+    subgraph DEV["Developer Workstation"]
         Dev[Developer]
         Code[Source Code]
+        Dev --> Code
     end
 
-    subgraph "GitHub (CI/CD)"
+    %% ========================
+    %% CI/CD Platform
+    %% ========================
+    subgraph CICD["GitHub CI/CD Platform"]
         Repo[GitHub Repository]
-        Action[GitHub Actions Workflow]
-        
-        subgraph "Build Phase (Inner Loop)"
-            SCA[Veracode SCA<br>(Dependency Scan)]
-            SAST_P[Veracode Pipeline Scan<br>(Fast SAST)]
-            Artifact[Build Artifact / Container]
+        Action[GitHub Actions]
+
+        subgraph INNER["Inner Loop – Build & Shift-Left Security"]
+            SCA[Veracode SCA<br>Dependency Scan]
+            SAST_P[Veracode Pipeline Scan<br>Fast SAST]
+            Artifact[Build Artifact / Container Image]
         end
-        
-        subgraph "Deployment Phase"
+
+        subgraph DEPLOY["Deployment Phase"]
             Deploy[Deploy to Staging]
         end
     end
 
-    subgraph "Veracode Platform"
+    %% ========================
+    %% Veracode SaaS Platform
+    %% ========================
+    subgraph VERACODE["Veracode Security Platform (SaaS)"]
         Policy[Policy Engine]
-        Analytics[Unified Reporting]
-        SAST_Deep[Policy Scan<br>(Deep SAST)]
+        SAST_Deep[Policy Scan<br>Deep SAST]
+        Analytics[Unified Analytics & Reporting]
     end
 
-    subgraph "Staging Environment"
+    %% ========================
+    %% Runtime Environment
+    %% ========================
+    subgraph STAGE["Staging Environment"]
         App[Running Application]
     end
 
-    subgraph "Dynamic Analysis (Outer Loop)"
+    %% ========================
+    %% Outer Loop Security
+    %% ========================
+    subgraph OUTER["Outer Loop – Runtime Security"]
         DAST[Veracode DAST / ISM]
     end
 
-    %% Define Edges
-    Dev -->|Commit / Push| Repo
-    Repo -->|Trigger| Action
-    
-    %% Build Steps
+    %% ========================
+    %% Flow Connections
+    %% ========================
+    Code -->|Commit / Push| Repo
+    Repo -->|CI Trigger| Action
+
+    %% Build Security
     Action --> SCA
     Action --> SAST_P
-    SCA -->|Manifest Check| Policy
-    SAST_P -->|Pass / Fail Feedback| Repo
-    
-    %% Deep Scan (Async)
-    Action -.->|Async Upload| SAST_Deep
-    SAST_Deep -->|Compliance Report| Analytics
+    SCA -->|Dependency Policy Check| Policy
+    SAST_P -->|Immediate Feedback| Repo
 
-    %% Deployment & DAST
-    Action -->|Success| Artifact
+    %% Deep SAST (Async)
+    Action -.->|Async Upload| SAST_Deep
+    SAST_Deep -->|Compliance Results| Analytics
+
+    %% Build → Deploy
+    Action -->|Build Success| Artifact
     Artifact --> Deploy
     Deploy --> App
-    Deploy -->|Trigger Event| DAST
-    
+
     %% DAST Execution
+    Deploy -->|Trigger Scan| DAST
     DAST -->|Crawl & Attack| App
-    DAST -->|Results| Analytics
+    DAST -->|Findings| Analytics
 
     %% Feedback Loops
-    Analytics -->|Aggregated Metrics| Repo
-    SCA -->|Issues / PR Comments| Repo
+    Analytics -->|Metrics / Trends| Repo
+    Analytics -->|Risk Posture| Policy
