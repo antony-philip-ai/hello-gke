@@ -10,8 +10,8 @@ flowchart TD
         Action[GitHub Actions Workflow]
         
         subgraph "Build Phase (Inner Loop)"
-            SCA[Veracode SCA<br/>(Dependency Scan)]
-            SAST_P[Veracode Pipeline Scan<br/>(Fast SAST)]
+            SCA[Veracode SCA<br>(Dependency Scan)]
+            SAST_P[Veracode Pipeline Scan<br>(Fast SAST)]
             Artifact[Build Artifact / Container]
         end
         
@@ -23,7 +23,7 @@ flowchart TD
     subgraph "Veracode Platform"
         Policy[Policy Engine]
         Analytics[Unified Reporting]
-        SAST_Deep[Policy Scan<br/>(Deep SAST)]
+        SAST_Deep[Policy Scan<br>(Deep SAST)]
     end
 
     subgraph "Staging Environment"
@@ -35,16 +35,16 @@ flowchart TD
     end
 
     %% Define Edges
-    Dev -->|Commit/Push| Repo
+    Dev -->|Commit / Push| Repo
     Repo -->|Trigger| Action
     
     %% Build Steps
     Action --> SCA
     Action --> SAST_P
     SCA -->|Manifest Check| Policy
-    SAST_P -->|Pass/Fail Feedback| Repo
+    SAST_P -->|Pass / Fail Feedback| Repo
     
-    %% Deep Scan Async
+    %% Deep Scan (Async)
     Action -.->|Async Upload| SAST_Deep
     SAST_Deep -->|Compliance Report| Analytics
 
@@ -60,4 +60,4 @@ flowchart TD
 
     %% Feedback Loops
     Analytics -->|Aggregated Metrics| Repo
-    SCA -->|Issues/PR Comments| Repo
+    SCA -->|Issues / PR Comments| Repo
